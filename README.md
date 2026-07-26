@@ -1,96 +1,78 @@
-# 🚀 WebLaunch Directory
+# WebLaunch Directory
 
-A free, open-source and human-reviewed website directory. Visitors can discover independent websites and submit their own homepage for moderation without paying a listing fee.
+A free, human-reviewed directory where people can submit independent websites without affiliate links, referral tracking or paid placement.
 
-## 🌐 What It Does
-
-- Accepts free website submissions
-- Limits each email address and IP-derived hash to **2 submissions per calendar day**
-- Rejects non-HTTPS, deep, tracking, affiliate, referral and shortened links
-- Checks redirects and rejects redirects to another domain
-- Prevents duplicate domains
-- Uses Cloudflare Turnstile for bot protection
-- Stores only one-way hashes of submitter email and IP data
-- Holds every submission for manual approval
-- Includes search, categories, individual listing pages, RSS and a dynamic sitemap
-- Includes a protected moderation dashboard
-- Lets visitors report broken, misleading or unsafe listings
-- Works on Cloudflare Pages with Pages Functions and D1
-
-## 🧱 Technology
+## Live architecture
 
 ```text
-GitHub repository
-      ↓ automatic deployment
-Cloudflare Pages ── public HTML, CSS and JavaScript
-      ↓
-Pages Functions ── validation, limits, moderation API
-      ↓
-Cloudflare D1 ── listings, reports and short-lived counters
-      ↓
-Cloudflare Turnstile ── bot protection
+Cloudflare Worker
+├── Static website files from public/
+├── API router from src/index.js
+├── Existing backend modules from functions/
+├── D1 database binding named DB
+└── Turnstile bot protection
 ```
 
-## 📁 Important Files
+## Main features
+
+- Two submissions per email per day
+- Two submissions per IP-derived hash per day
+- No raw email or IP storage
+- Affiliate, referral and tracking-link blocking
+- Homepage-only URL rules
+- Duplicate-domain detection
+- Turnstile verification
+- Manual moderation dashboard
+- Website search and categories
+- Reports, RSS feed and XML sitemap
+- Responsive public interface
+
+## Important files
 
 ```text
-public/                 Public website
-functions/              Secure server-side Pages Functions
-database/schema.sql     Database tables and indexes
-tools/generate-secrets.html
-                        Offline secret generator
-SETUP-GUIDE.md          Beginner-friendly deployment guide
-tests/                  Automated validation tests
+src/index.js           Cloudflare Worker router
+wrangler.jsonc         Worker, assets and D1 configuration
+functions/             Backend request handlers
+public/                HTML, CSS, JavaScript and admin interface
+database/schema.sql    D1 database tables and safeguards
+tools/                 Offline secret generator
+tests/                 Automated validation and routing tests
+SETUP-GUIDE.md         Beginner installation instructions
 ```
 
-## 🛡️ Submission Protection
-
-A submission must:
-
-1. Use `https://`.
-2. Point to the main homepage.
-3. Contain no query string, tracking parameter or fragment.
-4. Not use a known URL shortener.
-5. Stay on the same domain through redirects.
-6. Be submitted by someone claiming to own or officially represent it.
-7. Pass Turnstile.
-8. Stay within the two-per-day email and IP limits.
-9. Use a domain that has never already been submitted.
-10. Wait for moderator approval.
-
-Daily email and IP counters are updated inside one D1 database batch. If either limit fails, the entire submission is rolled back.
-
-## 🚀 Deploy It
-
-Follow **[SETUP-GUIDE.md](SETUP-GUIDE.md)**. It explains every click using GitHub and the Cloudflare dashboard. No command line is required.
-
-## 🧪 Tests
-
-Node.js 20 or newer is required only for running the optional tests:
+## Testing
 
 ```bash
-npm test
+npm ci
 npm run check
+npm test
 ```
 
-## 🔐 Never Commit Secrets
+The included suite tests URL rules, privacy hashing, administrator authentication, XML escaping, form validation and Worker routing.
 
-Do not place any of these values in GitHub:
+## Deployment
 
-- `ADMIN_KEY`
-- `IP_HASH_SALT`
-- `TURNSTILE_SECRET_KEY`
+Use the existing Cloudflare Workers Git integration with:
 
-Store them as Cloudflare secrets. The included `tools/generate-secrets.html` file creates strong random values locally in your browser.
+```text
+Build command: npm run check
+Deploy command: npx wrangler deploy
+```
 
-## ⚖️ Before a Public Launch
+See [SETUP-GUIDE.md](SETUP-GUIDE.md) for the complete beginner guide.
 
-The included privacy and terms pages are starter text, not legal advice. Add the operator's name, contact method and any wording required in the country where the directory is operated.
+## Security
 
-## 🤝 Contributing
+Never commit these values to GitHub:
 
-Bug reports and pull requests are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md) first.
+```text
+TURNSTILE_SECRET_KEY
+ADMIN_KEY
+IP_HASH_SALT
+```
 
-## 📄 Licence
+Store them as encrypted Cloudflare Worker secrets.
 
-MIT — see [LICENSE](LICENSE).
+## Licence
+
+MIT

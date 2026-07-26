@@ -1,12 +1,14 @@
 {
   "name": "weblaunch-directory",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
-  "description": "A free, human-reviewed website directory powered by Cloudflare Pages, Pages Functions, D1 and Turnstile.",
+  "description": "A free, human-reviewed website directory powered by Cloudflare Workers, Static Assets, D1 and Turnstile.",
   "scripts": {
     "test": "node --test",
-    "check": "node --check functions/api/submit.js && node --check functions/api/report.js && node --check functions/api/sites/index.js && node --check functions/api/admin/submissions/[id].js"
+    "check": "node --check src/index.js && node --check functions/api/submit.js && node --check functions/api/report.js && node --check functions/api/sites/index.js && node --check functions/api/admin/submissions/[id].js",
+    "dev": "npx wrangler dev",
+    "deploy": "npx wrangler deploy"
   },
   "engines": {
     "node": ">=20"
