@@ -1,0 +1,15 @@
+{
+  "name": "weblaunch-directory",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A free, human-reviewed website directory powered by Cloudflare Pages, Pages Functions, D1 and Turnstile.",
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check functions/api/submit.js && node --check functions/api/report.js && node --check functions/api/sites/index.js && node --check functions/api/admin/submissions/[id].js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}

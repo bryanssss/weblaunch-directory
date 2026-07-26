@@ -1,0 +1,14 @@
+import { json, methodNotAllowed } from "../_lib/http.js";
+
+export async function onRequest(context) {
+  if (context.request.method !== "GET") return methodNotAllowed(["GET"]);
+  const checks = {
+    database: Boolean(context.env.DB),
+    turnstileSiteKey: Boolean(context.env.TURNSTILE_SITE_KEY),
+    turnstileSecret: Boolean(context.env.TURNSTILE_SECRET_KEY),
+    adminKey: Boolean(context.env.ADMIN_KEY && context.env.ADMIN_KEY.length >= 20),
+    ipHashSalt: Boolean(context.env.IP_HASH_SALT && context.env.IP_HASH_SALT.length >= 16)
+  };
+  const ready = Object.values(checks).every(Boolean);
+  return json({ ready, checks }, ready ? 200 : 503);
+}
