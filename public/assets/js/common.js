@@ -49,6 +49,22 @@ export function create(tag, className, text) {
   return element;
 }
 
+
+export function siteIcon(site, extraClass = "") {
+  const wrapper = create("div", `site-initial site-icon ${extraClass}`.trim());
+  const fallback = create("span", "site-icon-fallback", initial(site?.name));
+  const image = create("img", "site-favicon");
+  image.alt = "";
+  image.loading = "lazy";
+  image.decoding = "async";
+  image.referrerPolicy = "no-referrer";
+  image.src = `/api/favicon?domain=${encodeURIComponent(site?.normalized_domain || "")}`;
+  image.addEventListener("load", () => wrapper.classList.add("has-favicon"), { once: true });
+  image.addEventListener("error", () => image.remove(), { once: true });
+  wrapper.append(fallback, image);
+  return wrapper;
+}
+
 export function listingPath(site) {
   const slug = String(site?.slug || "").trim();
   const id = Number(site?.id || 0);
@@ -59,7 +75,7 @@ export function listingPath(site) {
 export function siteCard(site) {
   const article = create("article", "site-card");
   const top = create("div", "site-card-top");
-  top.append(create("div", "site-initial", initial(site.name)));
+  top.append(siteIcon(site));
   const titleWrap = create("div");
   const listingHref = listingPath(site);
   const title = create("h3");

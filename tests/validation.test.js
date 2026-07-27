@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { detectProhibitedContent, normalizeWebsiteUrl, slugFromDomain, validateSubmission, validateReport } from "../functions/_lib/validation.js";
+import { detectProhibitedContent, normalizeWebsiteUrl, slugFromDomain, validateSubmission, validateReport, validateContact } from "../functions/_lib/validation.js";
 
 test("accepts a clean HTTPS homepage", () => {
   assert.deepEqual(normalizeWebsiteUrl("https://www.example.com/"), {
@@ -64,4 +64,26 @@ test("does not block ordinary health education wording", () => {
 test("validates reports and rejects unknown reasons", () => {
   assert.equal(validateReport({ siteId: 1, reason: "Broken website", details: "It no longer loads.", company: "" }).siteId, 1);
   assert.throws(() => validateReport({ siteId: 1, reason: "Made up reason", details: "", company: "" }), /valid report reason/);
+});
+
+
+test("validates private contact messages without exposing a destination address", () => {
+  const result = validateContact({
+    name: "Helpful Visitor",
+    email: "visitor@example.com",
+    subject: "Problem with a listing",
+    message: "The listing now redirects to a page that does not match its description.",
+    listingId: "7",
+    listingName: "Example Listing",
+    listingDomain: "example.com",
+    listingPath: "/site/7-example-com",
+    company: ""
+  });
+  assert.equal(result.listingId, "7");
+  assert.equal(result.email, "visitor@example.com");
+});
+
+test("rejects short or spam-filled contact messages", () => {
+  assert.throws(() => validateContact({ name: "A", email: "bad", subject: "Hi", message: "Too short", company: "" }));
+  assert.throws(() => validateContact({ name: "Visitor", email: "visitor@example.com", subject: "Hello", message: "This is a valid length message for testing.", company: "bot" }), /Spam protection/);
 });

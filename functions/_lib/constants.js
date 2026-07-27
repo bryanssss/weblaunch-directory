@@ -36,3 +36,4 @@ export const BLOCKED_SHORTENERS = new Set([
 
 export const SUBMISSIONS_PER_DAY = 2;
 export const REPORTS_PER_DAY = 5;
+export const CONTACTS_PER_DAY = 5;

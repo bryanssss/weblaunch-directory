@@ -12,7 +12,7 @@ function categorySlug(name) {
 export async function onRequest(context) {
   if (context.request.method !== "GET") return new Response("Method not allowed", { status: 405 });
   const origin = (context.env.SITE_URL || new URL(context.request.url).origin).replace(/\/$/, "");
-  const staticPages = ["/", "/submit.html", "/categories.html", "/rules.html", "/about.html", "/privacy.html", "/terms.html"];
+  const staticPages = ["/", "/submit.html", "/categories.html", "/rules.html", "/about.html", "/contact", "/privacy.html", "/terms.html"];
   let sites = [];
   if (context.env.DB) {
     try {

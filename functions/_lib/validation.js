@@ -107,6 +107,29 @@ export function validateSubmission(body) {
   return { name, description, category, email, website };
 }
 
+
+export function validateContact(body) {
+  const name = cleanText(body.name);
+  const email = cleanText(body.email).toLowerCase();
+  const subject = cleanText(body.subject);
+  const message = cleanText(body.message);
+  const listingId = cleanText(body.listingId).slice(0, 40);
+  const listingName = cleanText(body.listingName).slice(0, 100);
+  const listingDomain = cleanText(body.listingDomain).toLowerCase().slice(0, 253);
+  const listingPath = cleanText(body.listingPath).slice(0, 300);
+
+  if (cleanText(body.company)) throw new Error("Spam protection rejected this message.");
+  if (name.length < 2 || name.length > 80) throw new Error("Your name must be between 2 and 80 characters.");
+  if (email.length > 254 || !EMAIL_RE.test(email)) throw new Error("Enter a valid reply email address.");
+  if (subject.length < 3 || subject.length > 120) throw new Error("The subject must be between 3 and 120 characters.");
+  if (message.length < 20 || message.length > 2000) throw new Error("The message must be between 20 and 2,000 characters.");
+  if (listingId && !/^\d+$/.test(listingId)) throw new Error("The listing reference is invalid.");
+  if (listingDomain && !HOST_RE.test(listingDomain)) throw new Error("The listing domain is invalid.");
+  if (listingPath && !/^\/[a-z0-9_?&=.%/-]*$/i.test(listingPath)) throw new Error("The listing page reference is invalid.");
+
+  return { name, email, subject, message, listingId, listingName, listingDomain, listingPath };
+}
+
 export function validateReport(body) {
   const reason = cleanText(body.reason);
   const details = cleanText(body.details);

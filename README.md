@@ -10,45 +10,55 @@ Cloudflare Worker
 ├── API router from src/index.js
 ├── Backend modules from functions/
 ├── D1 database binding named DB
-└── Turnstile bot protection
+├── Cloudflare Email Service binding named CONTACT_EMAIL
+├── Turnstile bot protection
+└── Static Assets binding named ASSETS
 ```
 
-## Version 1.2.1 highlights
+## Version 1.3 highlights
 
 - Automatic publication for submissions that pass the rules
 - Maximum two submissions per email hash and IP-derived hash each day
-- No raw email or IP addresses stored by the application
+- No raw submitter email or IP addresses stored in D1
 - HTTPS and homepage-only URL validation
 - Affiliate, referral, tracking and URL-shortener blocking
-- Same-domain redirect validation
-- Duplicate-domain prevention
+- Same-domain redirect validation and duplicate-domain prevention
 - High-confidence pornography, explicit-adult, gambling and illegal-content screening
+- Exact ID-based listing API so listing pages no longer depend on a nested slug endpoint
 - Clean category URLs such as `/category/travel`
-- Professional custom category dropdowns with internal scrolling
-- Improved mobile spacing and select-arrow positioning
-- Public reporting and private suspension/removal tools
-- PayPal donation button using the project owner's hosted donation page
-- Stable ID-based listing URLs with backward-compatible slug lookup
-- RSS feed, XML sitemap and SEO-friendly listing URLs
+- Actual website favicons loaded through a privacy-conscious Worker proxy with letter fallback
+- Private Contact page for listing reports and general messages
+- Contact destination address stored only as a Cloudflare secret
+- Cloudflare Email Service delivery to a verified private destination
+- Daily contact-form limits using hashed email and IP identifiers
+- PayPal donation reminder after every successful publication
+- Optional PayPal buttons without paid placement or ranking benefits
+- New vector WebLaunch logo, responsive layout and custom mobile dropdowns
+- Private suspension/removal dashboard, RSS feed and XML sitemap
 
 ## Important limitation
 
-Automatic screening reduces obvious abuse but cannot understand every website or detect every future change. Publication is not an endorsement. The reporting and directory-management tools remain important for suspending or removing listings that later break the rules.
+Automatic screening reduces obvious abuse but cannot understand every website or detect every future change. Publication is not an endorsement. The private contact form and directory-management tools remain important for suspending or removing listings that later break the rules.
 
 ## Important files
 
 ```text
 src/index.js                         Cloudflare Worker router
-wrangler.jsonc                       Worker, assets and D1 configuration
+wrangler.jsonc                       Worker, Assets, D1 and Email binding configuration
 functions/api/submit.js              Automatic validation and publication
-functions/_lib/validation.js         URL and prohibited-content checks
+functions/api/site.js                Exact listing lookup by permanent database ID
+functions/api/favicon.js             Safe favicon discovery and proxy
+functions/api/contact.js             Private contact-email endpoint
+functions/_lib/validation.js         Submission, contact and prohibited-content checks
+public/contact.html                  Private contact and listing-report page
+public/assets/weblaunch-logo.svg     Website logo
 public/                              HTML, CSS and browser JavaScript
 database/schema.sql                  D1 database tables
 database/migrations/                 Optional one-time database updates
 tools/generate-secrets.html          Offline secret generator
 tests/                               Automated tests
 SETUP-GUIDE.md                       Beginner installation instructions
-UPDATE-GUIDE-v1.2.1.md               Listing-link repair update guide
+UPDATE-GUIDE-v1.3.md                 Existing-installation update guide
 ```
 
 ## Testing
@@ -59,7 +69,7 @@ npm run check
 npm test
 ```
 
-Version 1.2.1 includes 23 automated tests covering URL rules, privacy hashing, admin authentication, automatic approval, adult-content signals, XML escaping and Worker routing.
+Version 1.3 includes 29 automated tests covering automatic approval, exact listing lookup, private contact email, URL rules, privacy hashing, adult-content signals, XML escaping and Worker routing.
 
 ## Deployment
 
@@ -70,7 +80,7 @@ Build command: npm run check
 Deploy command: npx wrangler deploy
 ```
 
-The required runtime values are:
+Core runtime values:
 
 ```text
 SITE_NAME
@@ -82,7 +92,15 @@ ADMIN_KEY
 IP_HASH_SALT
 ```
 
-Never commit the secret values to GitHub.
+Private contact-email values:
+
+```text
+CONTACT_TO_EMAIL       Secret: verified private destination inbox
+CONTACT_FROM_EMAIL     Plaintext: sender address on an onboarded Cloudflare Email Service domain
+CONTACT_FROM_NAME      Plaintext: optional sender name
+```
+
+Never commit secret values to GitHub. The private destination email address is not present in the public repository or browser code.
 
 ## Support the project
 

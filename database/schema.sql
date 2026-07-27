@@ -53,3 +53,11 @@ CREATE TABLE IF NOT EXISTS reports (
 );
 
 CREATE INDEX IF NOT EXISTS idx_reports_site ON reports(site_id, created_at DESC);
+
+CREATE TABLE IF NOT EXISTS contact_limits (
+  limit_key TEXT NOT NULL,
+  day_key TEXT NOT NULL,
+  count INTEGER NOT NULL DEFAULT 1 CHECK(count BETWEEN 1 AND 5),
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY(limit_key, day_key)
+);

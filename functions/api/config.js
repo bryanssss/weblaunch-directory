@@ -8,6 +8,7 @@ export async function onRequest(context) {
     turnstileSiteKey: context.env.TURNSTILE_SITE_KEY || "",
     categories: CATEGORIES,
     reportReasons: REPORT_REASONS,
-    submissionsPerDay: SUBMISSIONS_PER_DAY
+    submissionsPerDay: SUBMISSIONS_PER_DAY,
+    contactEnabled: Boolean(context.env.CONTACT_EMAIL && context.env.CONTACT_TO_EMAIL && context.env.CONTACT_FROM_EMAIL)
   }, 200, publicCache(300));
 }

@@ -12,6 +12,8 @@
       "/api/*",
       "/site/*",
       "/category/*",
+      "/contact",
+      "/contact/",
       "/sitemap.xml",
       "/feed.xml",
       "/robots.txt"
@@ -20,6 +22,11 @@
   "d1_databases": [
     {
       "binding": "DB"
+    }
+  ],
+  "send_email": [
+    {
+      "name": "CONTACT_EMAIL"
     }
   ]
 }

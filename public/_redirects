@@ -1,3 +1,5 @@
 /site/* /site.html 200
 
 /category/* /categories.html 200
+
+/contact /contact.html 200

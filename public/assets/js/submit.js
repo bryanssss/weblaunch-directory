@@ -7,11 +7,34 @@ const category = qs("#category");
 const description = qs("#description");
 const counter = qs("#description-count");
 const turnstileContainer = qs("#turnstile-container");
+const donationDialog = qs("#donation-dialog");
+const donationClose = qs("#donation-close");
+const donationLater = qs("#donation-later");
+const donationListingLink = qs("#donation-listing-link");
 let widgetId = null;
 
 function resetTurnstile() {
   if (window.turnstile && widgetId !== null) window.turnstile.reset(widgetId);
 }
+
+function closeDonationDialog() {
+  donationDialog.classList.add("hidden");
+}
+
+function openDonationDialog(listingPath) {
+  donationListingLink.href = listingPath || "/";
+  donationDialog.classList.remove("hidden");
+  donationClose.focus();
+}
+
+donationClose?.addEventListener("click", closeDonationDialog);
+donationLater?.addEventListener("click", closeDonationDialog);
+donationDialog?.addEventListener("click", (event) => {
+  if (event.target === donationDialog) closeDonationDialog();
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && !donationDialog.classList.contains("hidden")) closeDonationDialog();
+});
 
 async function initialise() {
   try {
@@ -73,15 +96,17 @@ form.addEventListener("submit", async (event) => {
     form.reset();
     counter.textContent = "0/350";
     setNotice(notice, result.message, "success");
-    if (result.path || result.slug) {
+    const listingPath = result.path || (result.slug ? `/site/${encodeURIComponent(result.slug)}` : "/");
+    if (listingPath) {
       const liveLink = document.createElement("a");
       liveLink.className = "notice-link";
-      liveLink.href = result.path || `/site/${encodeURIComponent(result.slug)}`;
+      liveLink.href = listingPath;
       liveLink.textContent = "View the live listing →";
       notice.append(document.createElement("br"), liveLink);
     }
     resetTurnstile();
     notice.scrollIntoView({ behavior: "smooth", block: "center" });
+    window.setTimeout(() => openDonationDialog(listingPath), 350);
   } catch (error) {
     setNotice(notice, error.message, "error");
     resetTurnstile();

@@ -4,6 +4,9 @@ import { onRequest as submit } from "../functions/api/submit.js";
 import { onRequest as categories } from "../functions/api/categories.js";
 import { onRequest as sites } from "../functions/api/sites/index.js";
 import { onRequest as siteBySlug } from "../functions/api/sites/[slug].js";
+import { onRequest as exactSite } from "../functions/api/site.js";
+import { onRequest as favicon } from "../functions/api/favicon.js";
+import { onRequest as contact } from "../functions/api/contact.js";
 import { onRequest as report } from "../functions/api/report.js";
 import { onRequest as adminStats } from "../functions/api/admin/stats.js";
 import { onRequest as adminReports } from "../functions/api/admin/reports.js";
@@ -43,6 +46,9 @@ async function routeDynamicRequest(request, env, ctx) {
   if (path === "/api/submit") return submit(context());
   if (path === "/api/categories") return categories(context());
   if (path === "/api/sites") return sites(context());
+  if (path === "/api/site") return exactSite(context());
+  if (path === "/api/favicon") return favicon(context());
+  if (path === "/api/contact") return contact(context());
   if (path === "/api/report") return report(context());
   if (path === "/api/admin/stats") return adminStats(context());
   if (path === "/api/admin/reports") return adminReports(context());
@@ -67,6 +73,14 @@ async function routeDynamicRequest(request, env, ctx) {
     const assetUrl = new URL(request.url);
     assetUrl.pathname = "/categories.html";
     assetUrl.search = "";
+    return env.ASSETS.fetch(new Request(assetUrl, request));
+  }
+
+  // Clean contact URL uses the static contact form application.
+  if (path === "/contact" || path === "/contact/") {
+    const assetUrl = new URL(request.url);
+    assetUrl.pathname = "/contact.html";
+    assetUrl.search = url.search;
     return env.ASSETS.fetch(new Request(assetUrl, request));
   }
 

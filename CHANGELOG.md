@@ -1,5 +1,19 @@
 # Changelog
 
+## v1.3.0 — Contact email, favicons and reliable listing pages
+
+- Added an exact `/api/site?id=` lookup so clean listing pages load by permanent database ID.
+- Kept older slug-based listing links compatible.
+- Added a private Contact page for general enquiries and listing reports.
+- Added Cloudflare Email Service delivery without exposing the destination inbox in public code.
+- Added Turnstile and hashed email/IP daily limits to the contact form.
+- Replaced the listing report modal with a link to the Contact page.
+- Added proxied website favicons with a safe letter fallback.
+- Added a PayPal donation reminder after every successful website publication.
+- Added a new vector WebLaunch logo and updated all public pages.
+- Added contact/privacy/terms wording and a Contact sitemap URL.
+- Added 29 automated tests.
+
 ## v1.2.1 — Reliable listing links
 
 - Listing cards now use a stable database-ID URL such as `/site/12-example-com`.

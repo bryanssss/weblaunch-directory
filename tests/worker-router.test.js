@@ -67,3 +67,12 @@ test("Worker passes normal pages to static assets", async () => {
   assert.equal(response.status, 200);
   assert.equal(requestedPath, "/submit");
 });
+
+
+test("Worker rewrites clean contact URLs to contact.html", async () => {
+  let requestedPath = "";
+  const env = { ASSETS: { fetch: async (request) => { requestedPath = new URL(request.url).pathname; return new Response("contact app"); } } };
+  const response = await worker.fetch(new Request("https://example.test/contact?type=listing-report"), env, ctx());
+  assert.equal(response.status, 200);
+  assert.equal(requestedPath, "/contact.html");
+});

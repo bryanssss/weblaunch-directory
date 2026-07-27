@@ -88,3 +88,17 @@ Open `/submit`, complete the form and Turnstile, then press **Check and publish 
 ### 9. Manage reports and listings
 
 Open `/admin/` and enter `ADMIN_KEY`. The dashboard starts on **Live** listings. Use it to feature, suspend, restore or delete websites and inspect reports.
+
+## Part 12 — Configure the private Contact page
+
+Version 1.3 uses Cloudflare Email Service. Add and verify the private destination inbox under **Compute → Email Service → Email Routing → Destination Addresses**. Onboard a sender domain under **Email Sending**.
+
+The Worker configuration creates a send binding named `CONTACT_EMAIL`. Add these runtime settings:
+
+```text
+CONTACT_TO_EMAIL = private verified inbox (Secret)
+CONTACT_FROM_EMAIL = sender address on the onboarded domain (Plaintext)
+CONTACT_FROM_NAME = WebLaunch Directory (Plaintext)
+```
+
+The destination address is never included in the public repository or browser code. Open `/api/health` and confirm `contact.ready` is true, then test `/contact`.
