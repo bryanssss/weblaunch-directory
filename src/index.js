@@ -84,12 +84,12 @@ async function routeDynamicRequest(request, env, ctx) {
     return env.ASSETS.fetch(new Request(assetUrl, request));
   }
 
-  // Clean contact URL uses the static contact form application.
+  // Clean contact URL should redirect once to the static contact page.
+  // This avoids rewrite loops on some Cloudflare asset configurations.
   if (path === "/contact" || path === "/contact/") {
-    const assetUrl = new URL(request.url);
-    assetUrl.pathname = "/contact.html";
-    assetUrl.search = url.search;
-    return env.ASSETS.fetch(new Request(assetUrl, request));
+    const target = new URL(request.url);
+    target.pathname = "/contact.html";
+    return Response.redirect(target.toString(), 302);
   }
 
   // The public listing URL is /site/123-example-domain, but the browser app lives
