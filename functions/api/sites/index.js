@@ -6,6 +6,19 @@ function normaliseDomain(value) {
   return cleanText(value).toLowerCase().replace(/^www\./, "").replace(/\.$/, "");
 }
 
+function searchTokens(value) {
+  return cleanText(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9.]+/g, " ")
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 8);
+}
+
+function escapeLike(value) {
+  return value.replaceAll("\\", "\\\\").replaceAll("%", "\\%").replaceAll("_", "\\_");
+}
+
 export async function onRequest(context) {
   if (context.request.method !== "GET") return methodNotAllowed(["GET"]);
   if (!context.env.DB) return json({ error: "The database is not connected yet." }, 503);
@@ -35,12 +48,22 @@ export async function onRequest(context) {
     conditions.push("category = ?");
     bindings.push(category);
   }
-  if (query) {
-    conditions.push("(name LIKE ? ESCAPE '\\' OR description LIKE ? ESCAPE '\\' OR normalized_domain LIKE ? ESCAPE '\\')");
-    const escaped = query.replaceAll("\\", "\\\\").replaceAll("%", "\\%").replaceAll("_", "\\_");
-    const like = `%${escaped}%`;
-    bindings.push(like, like, like);
+
+  // Every search word may match any useful listing field. This allows searches
+  // such as "dream interpreter somniascope" to match words across the name,
+  // description and domain instead of requiring one exact phrase in one field.
+  for (const token of searchTokens(query)) {
+    conditions.push(`(
+      LOWER(name) LIKE ? ESCAPE '\\'
+      OR LOWER(description) LIKE ? ESCAPE '\\'
+      OR LOWER(normalized_domain) LIKE ? ESCAPE '\\'
+      OR LOWER(category) LIKE ? ESCAPE '\\'
+      OR LOWER(url) LIKE ? ESCAPE '\\'
+    )`);
+    const like = `%${escapeLike(token)}%`;
+    bindings.push(like, like, like, like, like);
   }
+
   if (featured) conditions.push("featured = 1");
 
   const where = conditions.join(" AND ");

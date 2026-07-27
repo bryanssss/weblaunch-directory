@@ -1,6 +1,6 @@
 {
   "name": "weblaunch-directory",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "private": true,
   "type": "module",
   "description": "A free website directory with automatic checks, a private Cloudflare D1 contact inbox, favicons, Workers Static Assets and Turnstile.",

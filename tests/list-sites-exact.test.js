@@ -41,3 +41,18 @@ test("list API supports an exact numeric ID lookup", async () => {
   assert.match(context.statements[0].sql, /id = \?/);
   assert.equal(context.statements[0].args[0], 7);
 });
+
+test("directory search matches every word across name, description, domain, category and URL", async () => {
+  const context = makeContext("https://directory.test/api/sites?q=dream%20interpreter%20somniascope&limit=12");
+  const response = await onRequest(context);
+  assert.equal(response.status, 200);
+  const sql = context.statements[0].sql;
+  assert.match(sql, /LOWER\(name\) LIKE/);
+  assert.match(sql, /LOWER\(description\) LIKE/);
+  assert.match(sql, /LOWER\(normalized_domain\) LIKE/);
+  assert.match(sql, /LOWER\(category\) LIKE/);
+  assert.match(sql, /LOWER\(url\) LIKE/);
+  assert.ok(context.statements[0].args.includes("%dream%"));
+  assert.ok(context.statements[0].args.includes("%interpreter%"));
+  assert.ok(context.statements[0].args.includes("%somniascope%"));
+});
