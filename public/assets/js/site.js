@@ -8,6 +8,7 @@ const reportForm = qs("#report-form");
 const reportNotice = qs("#report-notice");
 const reportReason = qs("#report-reason");
 let site = null;
+reportOpen.classList.add("hidden");
 
 function getSlug() {
   const pathMatch = location.pathname.match(/^\/site\/([^/]+)\/?$/);
@@ -61,6 +62,7 @@ function renderSite(item) {
   disclaimer.style.fontSize = ".86rem";
   aside.append(asideTitle, metaList, disclaimer);
   content.append(main, aside);
+  reportOpen.classList.remove("hidden");
 }
 
 async function loadSite() {
@@ -72,6 +74,9 @@ async function loadSite() {
   try {
     const data = await api(`/api/sites/${encodeURIComponent(slug)}`);
     site = data.site;
+    if (data.canonicalPath && location.pathname !== data.canonicalPath) {
+      history.replaceState({}, "", data.canonicalPath);
+    }
     renderSite(site);
   } catch (error) {
     content.innerHTML = '<div class="empty-state"></div>';

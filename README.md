@@ -13,7 +13,7 @@ Cloudflare Worker
 └── Turnstile bot protection
 ```
 
-## Version 1.2 highlights
+## Version 1.2.1 highlights
 
 - Automatic publication for submissions that pass the rules
 - Maximum two submissions per email hash and IP-derived hash each day
@@ -28,6 +28,7 @@ Cloudflare Worker
 - Improved mobile spacing and select-arrow positioning
 - Public reporting and private suspension/removal tools
 - PayPal donation button using the project owner's hosted donation page
+- Stable ID-based listing URLs with backward-compatible slug lookup
 - RSS feed, XML sitemap and SEO-friendly listing URLs
 
 ## Important limitation
@@ -47,7 +48,7 @@ database/migrations/                 Optional one-time database updates
 tools/generate-secrets.html          Offline secret generator
 tests/                               Automated tests
 SETUP-GUIDE.md                       Beginner installation instructions
-UPDATE-GUIDE-v1.2.md                 Existing-installation update guide
+UPDATE-GUIDE-v1.2.1.md               Listing-link repair update guide
 ```
 
 ## Testing
@@ -58,7 +59,7 @@ npm run check
 npm test
 ```
 
-Version 1.2 includes 21 automated tests covering URL rules, privacy hashing, admin authentication, automatic approval, adult-content signals, XML escaping and Worker routing.
+Version 1.2.1 includes 23 automated tests covering URL rules, privacy hashing, admin authentication, automatic approval, adult-content signals, XML escaping and Worker routing.
 
 ## Deployment
 

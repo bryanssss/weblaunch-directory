@@ -100,7 +100,7 @@ export async function onRequest(context) {
       return json({ error: `This email address has already made ${SUBMISSIONS_PER_DAY} submissions today.` }, 429);
     }
 
-    await context.env.DB.batch([
+    const writeResults = await context.env.DB.batch([
       context.env.DB.prepare(`
         INSERT INTO submission_limits (limit_key, day_key, count, updated_at)
         VALUES (?1, ?2, 1, ?3)
@@ -136,10 +136,13 @@ export async function onRequest(context) {
       context.env.DB.prepare("DELETE FROM submission_limits WHERE day_key < date('now', '-7 day')").run().catch(() => {})
     );
 
+    const insertedId = Number(writeResults?.[2]?.meta?.last_row_id || 0);
     return json({
       success: true,
       message: "Your website passed the automated checks and is now live in the directory.",
-      slug
+      id: insertedId || undefined,
+      slug,
+      path: insertedId ? `/site/${insertedId}-${slug}` : `/site/${slug}`
     }, 201);
   } catch (error) {
     const friendly = friendlyDatabaseError(error);

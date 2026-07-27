@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.2.1 — Reliable listing links
+
+- Listing cards now use a stable database-ID URL such as `/site/12-example-com`.
+- Existing slug-only listing links continue to work.
+- The listing API falls back to the normalised domain when an older stored slug differs.
+- Listing titles are clickable as well as the “View listing” link.
+- Sitemap, RSS and post-submission links use the stable listing route.
+
+
 ## 1.2.0
 
 - Changed eligible new submissions from manual review to automatic publication.

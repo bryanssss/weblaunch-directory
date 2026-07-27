@@ -73,10 +73,10 @@ form.addEventListener("submit", async (event) => {
     form.reset();
     counter.textContent = "0/350";
     setNotice(notice, result.message, "success");
-    if (result.slug) {
+    if (result.path || result.slug) {
       const liveLink = document.createElement("a");
       liveLink.className = "notice-link";
-      liveLink.href = `/site/${encodeURIComponent(result.slug)}`;
+      liveLink.href = result.path || `/site/${encodeURIComponent(result.slug)}`;
       liveLink.textContent = "View the live listing →";
       notice.append(document.createElement("br"), liveLink);
     }

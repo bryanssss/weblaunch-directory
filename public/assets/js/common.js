@@ -49,12 +49,23 @@ export function create(tag, className, text) {
   return element;
 }
 
+export function listingPath(site) {
+  const slug = String(site?.slug || "").trim();
+  const id = Number(site?.id || 0);
+  if (Number.isInteger(id) && id > 0 && slug) return `/site/${id}-${encodeURIComponent(slug)}`;
+  return `/site/${encodeURIComponent(slug)}`;
+}
+
 export function siteCard(site) {
   const article = create("article", "site-card");
   const top = create("div", "site-card-top");
   top.append(create("div", "site-initial", initial(site.name)));
   const titleWrap = create("div");
-  const title = create("h3", "", site.name);
+  const listingHref = listingPath(site);
+  const title = create("h3");
+  const titleLink = create("a", "site-title-link", site.name);
+  titleLink.href = listingHref;
+  title.append(titleLink);
   const domain = create("div", "domain", site.normalized_domain);
   titleWrap.append(title, domain);
   top.append(titleWrap);
@@ -64,7 +75,7 @@ export function siteCard(site) {
   const badge = create("a", "badge", site.category);
   badge.href = `/category/${categorySlug(site.category)}`;
   const link = create("a", "arrow-link", "View listing →");
-  link.href = `/site/${encodeURIComponent(site.slug)}`;
+  link.href = listingHref;
   link.setAttribute("aria-label", `View ${site.name}`);
   footer.append(badge, link);
   article.append(top, description, footer);

@@ -8,7 +8,7 @@ export async function onRequest(context) {
   if (context.env.DB) {
     try {
       const result = await context.env.DB.prepare(`
-        SELECT name, slug, description, category, approved_at
+        SELECT id, name, slug, description, category, approved_at
         FROM sites WHERE status = 'approved' ORDER BY approved_at DESC LIMIT 50
       `).all();
       sites = result.results || [];
@@ -19,8 +19,8 @@ export async function onRequest(context) {
   const items = sites.map((site) => `
     <item>
       <title>${xmlEscape(site.name)}</title>
-      <link>${xmlEscape(`${origin}/site/${site.slug}`)}</link>
-      <guid>${xmlEscape(`${origin}/site/${site.slug}`)}</guid>
+      <link>${xmlEscape(`${origin}/site/${site.id}-${site.slug}`)}</link>
+      <guid>${xmlEscape(`${origin}/site/${site.id}-${site.slug}`)}</guid>
       <description>${xmlEscape(site.description)}</description>
       <category>${xmlEscape(site.category)}</category>
       <pubDate>${new Date(site.approved_at || Date.now()).toUTCString()}</pubDate>

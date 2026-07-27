@@ -142,6 +142,8 @@ label { display: block; font-weight: 750; margin-bottom: 8px; }
 .site-card:hover { transform: translateY(-5px); border-color: rgba(92,225,200,.38); }
 .site-card-top { display: flex; align-items: center; gap: 13px; margin-bottom: 18px; }
 .site-card h3 { margin: 0 0 3px; }
+.site-title-link { color: var(--text); text-decoration: none; }
+.site-title-link:hover, .site-title-link:focus-visible { color: var(--primary); }
 .domain { color: var(--muted); font-size: .86rem; overflow-wrap: anywhere; }
 .site-card p { color: var(--muted); margin: 0 0 20px; }
 .site-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: auto; }

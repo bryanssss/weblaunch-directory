@@ -26,7 +26,7 @@ test("a valid submission is inserted as approved and receives a live slug", { co
     async batch(statements) {
       batches.push(statements);
       if (batches.length === 1) return [{ results: [] }, { results: [] }, { results: [] }];
-      return statements.map(() => ({ results: [], meta: { changes: 1 } }));
+      return statements.map((_, index) => ({ results: [], meta: { changes: 1, ...(index === 2 ? { last_row_id: 42 } : {}) } }));
     }
   };
 
@@ -63,6 +63,7 @@ test("a valid submission is inserted as approved and receives a live slug", { co
   assert.equal(response.status, 201);
   const data = await response.json();
   assert.equal(data.slug, "example-com");
+  assert.equal(data.path, "/site/42-example-com");
   assert.match(data.message, /now live/i);
   const insert = batches[1].find((statement) => /INSERT INTO sites/.test(statement.sql));
   assert.match(insert.sql, /'approved'/);

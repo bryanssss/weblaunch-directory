@@ -70,7 +70,7 @@ async function routeDynamicRequest(request, env, ctx) {
     return env.ASSETS.fetch(new Request(assetUrl, request));
   }
 
-  // The public listing URL is /site/example-domain, but the browser app lives
+  // The public listing URL is /site/123-example-domain, but the browser app lives
   // in public/site.html and reads the slug from the current URL.
   if (/^\/site\/[^/]+\/?$/.test(path)) {
     const assetUrl = new URL(request.url);
