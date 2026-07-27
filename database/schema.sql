@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS sites (
   normalized_domain TEXT NOT NULL UNIQUE,
   description TEXT NOT NULL CHECK(length(description) BETWEEN 50 AND 350),
   category TEXT NOT NULL,
-  status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','approved','rejected','suspended')),
+  status TEXT NOT NULL DEFAULT 'approved' CHECK(status IN ('pending','approved','rejected','suspended')),
   featured INTEGER NOT NULL DEFAULT 0 CHECK(featured IN (0,1)),
   submitter_email_hash TEXT NOT NULL,
   submitter_ip_hash TEXT NOT NULL,

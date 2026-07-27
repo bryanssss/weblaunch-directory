@@ -1,4 +1,4 @@
-import { api, clearNotice, getConfig, qs, setNotice } from "./common.js";
+import { api, clearNotice, enhanceSelect, getConfig, qs, setNotice } from "./common.js";
 
 const form = qs("#submission-form");
 const notice = qs("#form-notice");
@@ -23,6 +23,7 @@ async function initialise() {
       option.textContent = name;
       category.append(option);
     });
+    enhanceSelect(category);
     if (!config.turnstileSiteKey) {
       setNotice(notice, "The site owner has not connected Turnstile yet, so submissions are temporarily disabled.", "warning");
       submitButton.disabled = true;
@@ -54,7 +55,7 @@ form.addEventListener("submit", async (event) => {
     return;
   }
   submitButton.disabled = true;
-  submitButton.textContent = "Checking website…";
+  submitButton.textContent = "Running automatic checks…";
   const data = new FormData(form);
   const payload = {
     name: data.get("name"),
@@ -72,6 +73,13 @@ form.addEventListener("submit", async (event) => {
     form.reset();
     counter.textContent = "0/350";
     setNotice(notice, result.message, "success");
+    if (result.slug) {
+      const liveLink = document.createElement("a");
+      liveLink.className = "notice-link";
+      liveLink.href = `/site/${encodeURIComponent(result.slug)}`;
+      liveLink.textContent = "View the live listing →";
+      notice.append(document.createElement("br"), liveLink);
+    }
     resetTurnstile();
     notice.scrollIntoView({ behavior: "smooth", block: "center" });
   } catch (error) {
@@ -79,7 +87,7 @@ form.addEventListener("submit", async (event) => {
     resetTurnstile();
   } finally {
     submitButton.disabled = false;
-    submitButton.textContent = "Submit website for review";
+    submitButton.textContent = "Check and publish website";
   }
 });
 

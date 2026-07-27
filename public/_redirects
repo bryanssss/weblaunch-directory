@@ -1,1 +1,3 @@
 /site/* /site.html 200
+
+/category/* /categories.html 200

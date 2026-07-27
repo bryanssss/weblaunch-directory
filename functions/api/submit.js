@@ -62,7 +62,7 @@ export async function onRequest(context) {
 
   let checkedWebsite;
   try {
-    checkedWebsite = await inspectHomepage(input.website.url);
+    checkedWebsite = await inspectHomepage(input.website.url, `${input.name} ${input.description}`);
   } catch (error) {
     return json({ error: error.message }, 400);
   }
@@ -116,8 +116,8 @@ export async function onRequest(context) {
       context.env.DB.prepare(`
         INSERT INTO sites (
           name, slug, url, normalized_domain, description, category, status,
-          submitter_email_hash, submitter_ip_hash, submission_day, created_at, updated_at
-        ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, 'pending', ?7, ?8, ?9, ?10, ?10)
+          submitter_email_hash, submitter_ip_hash, submission_day, created_at, updated_at, approved_at
+        ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, 'approved', ?7, ?8, ?9, ?10, ?10, ?10)
       `).bind(
         input.name,
         slug,
@@ -138,7 +138,7 @@ export async function onRequest(context) {
 
     return json({
       success: true,
-      message: "Your website was submitted successfully and is waiting for manual review.",
+      message: "Your website passed the automated checks and is now live in the directory.",
       slug
     }, 201);
   } catch (error) {

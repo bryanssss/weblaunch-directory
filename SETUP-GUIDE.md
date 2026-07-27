@@ -1,134 +1,77 @@
-# WebLaunch Directory — Simple Cloudflare Workers Setup
+# WebLaunch Directory v1.2 — Simple Cloudflare Workers Setup
 
-This guide matches Cloudflare's current **Workers & Pages** dashboard.
+## Existing installation
 
-## Part 1 — Put the fixed files on GitHub
+The fastest update instructions are in [UPDATE-GUIDE-v1.2.md](UPDATE-GUIDE-v1.2.md).
 
-1. Extract the ZIP.
-2. Open the extracted `weblaunch-directory` folder.
-3. Upload all files and folders to your existing GitHub repository named `weblaunch-directory`.
-4. Allow GitHub to replace files with the same names.
-5. Commit with the message `Upgrade to Worker backend v1.1`.
+## New installation
 
-The most important new files are:
+### 1. Upload the repository to GitHub
 
-```text
-src/index.js
-wrangler.jsonc
-package.json
-package-lock.json
-```
+Create a public repository named `weblaunch-directory`, then upload everything inside the extracted project folder.
 
-Keep these existing folders too:
+### 2. Create or connect the Cloudflare Worker
+
+Connect the GitHub repository to a Cloudflare Worker and use:
 
 ```text
-functions
-public
-database
-tests
-tools
+Build command: npm run check
+Deploy command: npx wrangler deploy
+Root directory: /
 ```
 
-## Part 2 — Use the Worker you already created
+### 3. Connect D1
 
-Do not create another application. Open:
+Create a D1 database named `weblaunch-directory-db` and connect it to the Worker with the exact binding name:
 
 ```text
-Workers & Pages → weblaunch-directory
+DB
 ```
 
-Your existing address can remain:
+Open the D1 Console, copy all of `database/schema.sql`, paste it and press **Execute**.
+
+### 4. Confirm the static-assets binding
+
+The deployment should create:
 
 ```text
-https://weblaunch-directory.bryanssss-tools.workers.dev
+ASSETS
 ```
 
-## Part 3 — Correct the build command
+Do not delete it.
 
-1. Open the `weblaunch-directory` Worker.
-2. Open **Settings**.
-3. Open **Builds**.
-4. Find the build configuration.
-5. Set the build command to:
+### 5. Add runtime variables
 
-```text
-npm run check
-```
-
-6. Set the deploy command to:
-
-```text
-npx wrangler deploy
-```
-
-7. Save.
-
-The old deploy command `npx wrangler versions upload` only uploads a version. The new command deploys it to production.
-
-## Part 4 — Wait for GitHub deployment
-
-After committing the files, Cloudflare should start a new build automatically.
-
-A successful log should include a real deployment and should not finish by telling you to run `wrangler versions deploy` yourself.
-
-## Part 5 — Find the D1 database
-
-The `wrangler.jsonc` file asks Cloudflare to provide a D1 binding called `DB`.
-
-1. Open the Worker.
-2. Open **Bindings**.
-3. Find `DB`.
-4. Open the connected D1 database.
-5. Open its **Console**.
-6. Open `database/schema.sql` from the repository.
-7. Copy all of it.
-8. Paste it into the D1 Console.
-9. Press **Execute**.
-
-## Part 6 — Add normal variables
-
-Open:
-
-```text
-Worker → Settings → Variables and Secrets
-```
-
-Add these as normal text variables:
+Add these as Plaintext runtime variables:
 
 ```text
 SITE_NAME = WebLaunch Directory
 SITE_URL = https://weblaunch-directory.bryanssss-tools.workers.dev
 RATE_LIMIT_TIMEZONE = Europe/London
-TURNSTILE_SITE_KEY = your Turnstile site key
+TURNSTILE_SITE_KEY = your public Turnstile site key
 ```
 
-## Part 7 — Add private secrets
-
-Add these as secrets:
+Add these as encrypted Secret runtime values:
 
 ```text
-TURNSTILE_SECRET_KEY = your Turnstile secret key
+TURNSTILE_SECRET_KEY = your private Turnstile secret
 ADMIN_KEY = your generated administrator key
 IP_HASH_SALT = your generated privacy salt
 ```
 
-To generate `ADMIN_KEY` and `IP_HASH_SALT`, open this file on your computer:
+Generate the last two values by opening `tools/generate-secrets.html` locally.
 
-```text
-tools/generate-secrets.html
-```
+### 6. Configure Turnstile
 
-## Part 8 — Configure Turnstile
-
-In the Turnstile widget's allowed hostnames, add:
+Allow this hostname in the Turnstile widget:
 
 ```text
 weblaunch-directory.bryanssss-tools.workers.dev
 ```
 
-Do not include `https://` and do not include `/submit`.
+Do not include `https://` or `/submit`.
 
-## Part 9 — Test the health page
+### 7. Test health
 
 Open:
 
@@ -136,37 +79,12 @@ Open:
 https://weblaunch-directory.bryanssss-tools.workers.dev/api/health
 ```
 
-The correct result is:
+All checks must be `true`.
 
-```json
-{
-  "ready": true,
-  "checks": {
-    "database": true,
-    "turnstileSiteKey": true,
-    "turnstileSecret": true,
-    "adminKey": true,
-    "ipHashSalt": true
-  }
-}
-```
+### 8. Test automatic publication
 
-## Part 10 — Test the form
+Open `/submit`, complete the form and Turnstile, then press **Check and publish website**. A website that passes the automated checks is inserted with `approved` status and appears publicly without manual approval.
 
-Open:
+### 9. Manage reports and listings
 
-```text
-https://weblaunch-directory.bryanssss-tools.workers.dev/submit
-```
-
-Then submit a real HTTPS homepage.
-
-## Part 11 — Approve the submission
-
-Open:
-
-```text
-https://weblaunch-directory.bryanssss-tools.workers.dev/admin/
-```
-
-Paste your `ADMIN_KEY`, open Pending submissions, and approve the listing.
+Open `/admin/` and enter `ADMIN_KEY`. The dashboard starts on **Live** listings. Use it to feature, suspend, restore or delete websites and inspect reports.

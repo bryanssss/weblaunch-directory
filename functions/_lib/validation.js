@@ -3,6 +3,24 @@ import { cleanText } from "./security.js";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const HOST_RE = /^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/i;
+const MAX_HOMEPAGE_BYTES = 300_000;
+
+const PROHIBITED_DOMAIN_TERMS = [
+  "porn", "xvideos", "pornhub", "youporn", "redtube", "hentai", "chaturbate",
+  "stripchat", "camsoda", "adultfriendfinder", "livejasmin", "brothel"
+];
+
+const PROHIBITED_CONTENT_PATTERNS = [
+  /\b(?:free|watch|stream|online|hd)?\s*porn(?:ography)?\b/i,
+  /\bxxx\s+(?:videos?|movies?|cams?|content)\b/i,
+  /\b(?:live\s+)?sex\s+(?:cams?|chat|videos?|shows?)\b/i,
+  /\b(?:adult|nude)\s+(?:videos?|content|cams?|chat|dating|models?)\b/i,
+  /\bhentai\b/i,
+  /\bescort\s+(?:service|services|agency|agencies|directory|girls?)\b/i,
+  /\bonline\s+casino\b/i,
+  /\bsports?\s+betting\b/i,
+  /\bbuy\s+(?:cocaine|heroin|fentanyl|methamphetamine|illegal\s+drugs?)\b/i
+];
 
 function isBlockedIpLiteral(hostname) {
   const host = hostname.replace(/^\[|\]$/g, "").toLowerCase();
@@ -56,6 +74,18 @@ export function slugFromDomain(domain) {
   return domain.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 120);
 }
 
+export function detectProhibitedContent({ domain = "", submittedText = "", pageText = "" } = {}) {
+  const domainTokens = String(domain).toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+  const blockedDomain = PROHIBITED_DOMAIN_TERMS.find((term) => domainTokens.includes(term));
+  if (blockedDomain) return "Pornographic, explicit-adult, gambling or illegal-content websites are not accepted.";
+
+  const text = `${submittedText}\n${pageText}`.replace(/\s+/g, " ").slice(0, 500_000);
+  if (PROHIBITED_CONTENT_PATTERNS.some((pattern) => pattern.test(text))) {
+    return "The automated safety check detected content that is prohibited by the directory rules.";
+  }
+  return "";
+}
+
 export function validateSubmission(body) {
   const name = cleanText(body.name);
   const description = cleanText(body.description);
@@ -69,6 +99,11 @@ export function validateSubmission(body) {
   if (body.ownership !== true) throw new Error("Confirm that you own or officially represent the website.");
   if (body.rules !== true) throw new Error("You must agree to the submission rules.");
   const website = normalizeWebsiteUrl(body.url);
+  const prohibited = detectProhibitedContent({
+    domain: website.normalisedDomain,
+    submittedText: `${name} ${description}`
+  });
+  if (prohibited) throw new Error(prohibited);
   return { name, description, category, email, website };
 }
 
@@ -84,15 +119,16 @@ export function validateReport(body) {
 
 async function fetchWithTimeout(url, method) {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 7000);
+  const timer = setTimeout(() => controller.abort(), 8000);
   try {
     return await fetch(url, {
       method,
       redirect: "manual",
       signal: controller.signal,
       headers: {
-        "user-agent": "WebLaunchDirectoryBot/1.0 (+website directory validation)",
-        accept: "text/html,application/xhtml+xml"
+        "user-agent": "WebLaunchDirectoryBot/1.2 (+automated website directory validation)",
+        accept: "text/html,application/xhtml+xml",
+        ...(method === "GET" ? { range: `bytes=0-${MAX_HOMEPAGE_BYTES - 1}` } : {})
       }
     });
   } finally {
@@ -100,13 +136,46 @@ async function fetchWithTimeout(url, method) {
   }
 }
 
-export async function inspectHomepage(startUrl) {
+async function readTextLimited(response, maxBytes = MAX_HOMEPAGE_BYTES) {
+  if (!response.body) return "";
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let total = 0;
+  let text = "";
+  try {
+    while (total < maxBytes) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const remaining = maxBytes - total;
+      const chunk = value.byteLength > remaining ? value.slice(0, remaining) : value;
+      total += chunk.byteLength;
+      text += decoder.decode(chunk, { stream: total < maxBytes });
+      if (chunk.byteLength < value.byteLength) break;
+    }
+    text += decoder.decode();
+  } finally {
+    reader.cancel().catch(() => {});
+  }
+  return text;
+}
+
+function htmlToSearchableText(html) {
+  return String(html)
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, " ")
+    .replace(/<!--([\s\S]*?)-->/g, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&(?:nbsp|amp|quot|apos|lt|gt);/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+export async function inspectHomepage(startUrl, submittedText = "") {
   let current = normalizeWebsiteUrl(startUrl);
   for (let hop = 0; hop <= 3; hop += 1) {
     let response;
     try {
-      response = await fetchWithTimeout(current.url, "HEAD");
-      if ([403, 405].includes(response.status)) response = await fetchWithTimeout(current.url, "GET");
+      response = await fetchWithTimeout(current.url, "GET");
     } catch {
       throw new Error("We could not reach this website. Check that it is online and try again.");
     }
@@ -123,7 +192,19 @@ export async function inspectHomepage(startUrl) {
     }
     if (response.status >= 400) throw new Error(`The website returned an error (${response.status}).`);
     if (response.status < 200 || response.status >= 400) throw new Error("The website did not return a normal page response.");
-    return { ...current, status: response.status };
+    const contentType = String(response.headers.get("content-type") || "").toLowerCase();
+    if (contentType && !contentType.includes("text/html") && !contentType.includes("application/xhtml+xml")) {
+      throw new Error("The submitted address does not appear to be a normal website homepage.");
+    }
+    const html = await readTextLimited(response);
+    const pageText = htmlToSearchableText(html);
+    const prohibited = detectProhibitedContent({
+      domain: current.normalisedDomain,
+      submittedText,
+      pageText
+    });
+    if (prohibited) throw new Error(prohibited);
+    return { ...current, status: response.status, checkedAutomatically: true };
   }
   throw new Error("The website uses too many redirects.");
 }

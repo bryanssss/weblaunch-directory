@@ -24,7 +24,7 @@ export const REPORT_REASONS = [
   "Affiliate or referral redirect",
   "Malware or phishing concern",
   "Misleading description",
-  "Adult or prohibited content",
+  "Pornographic or explicit adult content",
   "Duplicate listing",
   "Other"
 ];

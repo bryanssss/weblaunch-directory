@@ -26,7 +26,7 @@ async function loadHome() {
       api("/api/sites?featured=1&limit=6")
     ]);
     totalStat.textContent = String(latest.pagination.total);
-    renderSites(grid, latest.sites, "No websites have been approved yet. Be the first to submit one.");
+    renderSites(grid, latest.sites, "No websites are listed yet. Be the first to submit one.");
     if (featured.sites.length) {
       renderSites(featuredGrid, featured.sites, "");
       featuredSection.classList.remove("hidden");

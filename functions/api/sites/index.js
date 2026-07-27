@@ -1,5 +1,5 @@
 import { CATEGORIES } from "../../_lib/constants.js";
-import { json, methodNotAllowed, publicCache } from "../../_lib/http.js";
+import { json, methodNotAllowed } from "../../_lib/http.js";
 import { cleanText } from "../../_lib/security.js";
 
 export async function onRequest(context) {
@@ -51,7 +51,7 @@ export async function onRequest(context) {
         total,
         pages: Math.max(1, Math.ceil(total / limit))
       }
-    }, 200, publicCache(60));
+    }, 200);
   } catch (error) {
     console.error("List sites error", error);
     return json({ error: "Listings could not be loaded." }, 500);

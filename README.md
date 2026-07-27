@@ -1,6 +1,6 @@
 # WebLaunch Directory
 
-A free, human-reviewed directory where people can submit independent websites without affiliate links, referral tracking or paid placement.
+A free website directory where eligible independent websites are published automatically after anti-spam, link, availability, duplicate-domain and prohibited-content checks.
 
 ## Live architecture
 
@@ -8,36 +8,46 @@ A free, human-reviewed directory where people can submit independent websites wi
 Cloudflare Worker
 ├── Static website files from public/
 ├── API router from src/index.js
-├── Existing backend modules from functions/
+├── Backend modules from functions/
 ├── D1 database binding named DB
 └── Turnstile bot protection
 ```
 
-## Main features
+## Version 1.2 highlights
 
-- Two submissions per email per day
-- Two submissions per IP-derived hash per day
-- No raw email or IP storage
-- Affiliate, referral and tracking-link blocking
-- Homepage-only URL rules
-- Duplicate-domain detection
-- Turnstile verification
-- Manual moderation dashboard
-- Website search and categories
-- Reports, RSS feed and XML sitemap
-- Responsive public interface
+- Automatic publication for submissions that pass the rules
+- Maximum two submissions per email hash and IP-derived hash each day
+- No raw email or IP addresses stored by the application
+- HTTPS and homepage-only URL validation
+- Affiliate, referral, tracking and URL-shortener blocking
+- Same-domain redirect validation
+- Duplicate-domain prevention
+- High-confidence pornography, explicit-adult, gambling and illegal-content screening
+- Clean category URLs such as `/category/travel`
+- Professional custom category dropdowns with internal scrolling
+- Improved mobile spacing and select-arrow positioning
+- Public reporting and private suspension/removal tools
+- PayPal donation button using the project owner's hosted donation page
+- RSS feed, XML sitemap and SEO-friendly listing URLs
+
+## Important limitation
+
+Automatic screening reduces obvious abuse but cannot understand every website or detect every future change. Publication is not an endorsement. The reporting and directory-management tools remain important for suspending or removing listings that later break the rules.
 
 ## Important files
 
 ```text
-src/index.js           Cloudflare Worker router
-wrangler.jsonc         Worker, assets and D1 configuration
-functions/             Backend request handlers
-public/                HTML, CSS, JavaScript and admin interface
-database/schema.sql    D1 database tables and safeguards
-tools/                 Offline secret generator
-tests/                 Automated validation and routing tests
-SETUP-GUIDE.md         Beginner installation instructions
+src/index.js                         Cloudflare Worker router
+wrangler.jsonc                       Worker, assets and D1 configuration
+functions/api/submit.js              Automatic validation and publication
+functions/_lib/validation.js         URL and prohibited-content checks
+public/                              HTML, CSS and browser JavaScript
+database/schema.sql                  D1 database tables
+database/migrations/                 Optional one-time database updates
+tools/generate-secrets.html          Offline secret generator
+tests/                               Automated tests
+SETUP-GUIDE.md                       Beginner installation instructions
+UPDATE-GUIDE-v1.2.md                 Existing-installation update guide
 ```
 
 ## Testing
@@ -48,7 +58,7 @@ npm run check
 npm test
 ```
 
-The included suite tests URL rules, privacy hashing, administrator authentication, XML escaping, form validation and Worker routing.
+Version 1.2 includes 21 automated tests covering URL rules, privacy hashing, admin authentication, automatic approval, adult-content signals, XML escaping and Worker routing.
 
 ## Deployment
 
@@ -59,19 +69,25 @@ Build command: npm run check
 Deploy command: npx wrangler deploy
 ```
 
-See [SETUP-GUIDE.md](SETUP-GUIDE.md) for the complete beginner guide.
-
-## Security
-
-Never commit these values to GitHub:
+The required runtime values are:
 
 ```text
+SITE_NAME
+SITE_URL
+RATE_LIMIT_TIMEZONE
+TURNSTILE_SITE_KEY
 TURNSTILE_SECRET_KEY
 ADMIN_KEY
 IP_HASH_SALT
 ```
 
-Store them as encrypted Cloudflare Worker secrets.
+Never commit the secret values to GitHub.
+
+## Support the project
+
+WebLaunch Directory remains free and has no paid placement. Optional donations do not influence eligibility or ranking.
+
+[Donate with PayPal](https://www.paypal.com/donate/?hosted_button_id=YE9H5NCNLWU38)
 
 ## Licence
 

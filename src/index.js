@@ -62,6 +62,14 @@ async function routeDynamicRequest(request, env, ctx) {
   if (path === "/feed.xml") return feed(context());
   if (path === "/robots.txt") return robots(context());
 
+  // Clean category URLs such as /category/travel use the category browser app.
+  if (/^\/category\/[a-z0-9-]+\/?$/.test(path)) {
+    const assetUrl = new URL(request.url);
+    assetUrl.pathname = "/categories.html";
+    assetUrl.search = "";
+    return env.ASSETS.fetch(new Request(assetUrl, request));
+  }
+
   // The public listing URL is /site/example-domain, but the browser app lives
   // in public/site.html and reads the slug from the current URL.
   if (/^\/site\/[^/]+\/?$/.test(path)) {

@@ -1,4 +1,4 @@
-import { api, create, formatDate, getConfig, initial, qs, setNotice } from "./common.js";
+import { api, categorySlug, create, enhanceSelect, formatDate, getConfig, initial, qs, setNotice } from "./common.js";
 
 const content = qs("#listing-content");
 const reportOpen = qs("#report-open");
@@ -40,7 +40,7 @@ function renderSite(item) {
   visit.target = "_blank";
   visit.rel = "noopener noreferrer nofollow ugc";
   const category = create("a", "button secondary", `More in ${item.category}`);
-  category.href = `/categories.html?category=${encodeURIComponent(item.category)}`;
+  category.href = `/category/${categorySlug(item.category)}`;
   actions.append(visit, category);
   main.append(titleRow, description, actions);
 
@@ -57,7 +57,7 @@ function renderSite(item) {
     row.append(create("span", "", key), create("span", "", value));
     metaList.append(row);
   });
-  const disclaimer = create("p", "muted", "Listings are reviewed for the directory rules, but inclusion is not an endorsement. Always use your own judgement before visiting or buying from any website.");
+  const disclaimer = create("p", "muted", "Listings pass automated checks when submitted, but inclusion is not an endorsement. Automated screening can miss changes, so use your own judgement and report problems.");
   disclaimer.style.fontSize = ".86rem";
   aside.append(asideTitle, metaList, disclaimer);
   content.append(main, aside);
@@ -89,12 +89,13 @@ async function prepareReportForm() {
       option.textContent = reason;
       reportReason.append(option);
     });
+    enhanceSelect(reportReason);
   } catch { /* form will still fail safely */ }
 }
 
 reportOpen.addEventListener("click", () => {
   reportDialog.classList.remove("hidden");
-  reportReason.focus();
+  (reportReason._customSelect?.button || reportReason).focus();
 });
 reportClose.addEventListener("click", () => reportDialog.classList.add("hidden"));
 reportDialog.addEventListener("click", (event) => {

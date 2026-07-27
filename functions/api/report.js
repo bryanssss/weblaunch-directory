@@ -50,7 +50,7 @@ export async function onRequest(context) {
     context.waitUntil(
       context.env.DB.prepare("DELETE FROM report_limits WHERE day_key < date('now', '-7 day')").run().catch(() => {})
     );
-    return json({ success: true, message: "Thank you. The report was sent to the moderator." }, 201);
+    return json({ success: true, message: "Thank you. The report was saved for directory review." }, 201);
   } catch (error) {
     const message = String(error?.message || error);
     if (message.includes("reports.site_id") || message.includes("UNIQUE constraint failed: reports")) {

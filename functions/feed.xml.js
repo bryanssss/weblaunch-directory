@@ -25,6 +25,6 @@ export async function onRequest(context) {
       <category>${xmlEscape(site.category)}</category>
       <pubDate>${new Date(site.approved_at || Date.now()).toUTCString()}</pubDate>
     </item>`).join("");
-  const xml = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>${xmlEscape(name)}</title><link>${xmlEscape(origin)}</link><description>Recently approved independent websites.</description>${items}</channel></rss>`;
+  const xml = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>${xmlEscape(name)}</title><link>${xmlEscape(origin)}</link><description>Recently added independent websites that passed automated checks.</description>${items}</channel></rss>`;
   return new Response(xml, { headers: { "content-type": "application/rss+xml; charset=utf-8", "cache-control": "public, max-age=600" } });
 }

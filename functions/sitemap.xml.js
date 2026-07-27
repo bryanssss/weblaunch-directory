@@ -1,4 +1,13 @@
+import { CATEGORIES } from "./_lib/constants.js";
 import { xmlEscape } from "./_lib/security.js";
+
+function categorySlug(name) {
+  return String(name || "")
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
 
 export async function onRequest(context) {
   if (context.request.method !== "GET") return new Response("Method not allowed", { status: 405 });
@@ -15,6 +24,7 @@ export async function onRequest(context) {
   }
   const items = [
     ...staticPages.map((path) => `<url><loc>${xmlEscape(origin + path)}</loc></url>`),
+    ...CATEGORIES.map((category) => `<url><loc>${xmlEscape(`${origin}/category/${categorySlug(category)}`)}</loc></url>`),
     ...sites.map((site) => `<url><loc>${xmlEscape(`${origin}/site/${site.slug}`)}</loc><lastmod>${xmlEscape(String(site.updated_at || "").slice(0, 10))}</lastmod></url>`)
   ].join("");
   return new Response(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${items}</urlset>`, {

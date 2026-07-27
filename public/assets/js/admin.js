@@ -10,7 +10,7 @@ const list = qs("#submission-list");
 const searchInput = qs("#admin-search");
 const logout = qs("#admin-logout");
 let adminKey = sessionStorage.getItem("weblaunch_admin_key") || "";
-let currentStatus = "pending";
+let currentStatus = "approved";
 
 function headers() { return { authorization: `Bearer ${adminKey}` }; }
 
@@ -21,8 +21,8 @@ async function adminApi(path, options = {}) {
 function renderStats(stats) {
   statsGrid.replaceChildren();
   [
-    ["Pending", stats.pending], ["Approved", stats.approved], ["Rejected", stats.rejected],
-    ["Suspended", stats.suspended], ["Featured", stats.featured], ["Reports", stats.reports]
+    ["Live", stats.approved], ["Suspended", stats.suspended], ["Reports", stats.reports],
+    ["Rejected", stats.rejected], ["Featured", stats.featured], ["Legacy pending", stats.pending]
   ].forEach(([label, value]) => {
     const card = create("div", "stat");
     card.append(create("strong", "", String(value)), create("span", "", label));
@@ -46,7 +46,7 @@ function renderSubmission(item) {
   const meta = create("div", "admin-meta");
   meta.append(
     create("span", "", item.category),
-    create("span", "", `Submitted ${formatDate(item.created_at)}`),
+    create("span", "", `Added ${formatDate(item.created_at)}`),
     create("span", "", `${item.reports || 0} reports`)
   );
   const description = create("p", "muted", item.description);
@@ -92,19 +92,19 @@ function renderSubmission(item) {
   });
 
   card.append(head, meta, description, link, actions);
-  if (item.rejection_reason) card.append(create("div", "notice warning", `Moderator note: ${item.rejection_reason}`));
+  if (item.rejection_reason) card.append(create("div", "notice warning", `Directory note: ${item.rejection_reason}`));
   return card;
 }
 
 async function loadSubmissions() {
-  list.innerHTML = '<div class="empty-state loading">Loading submissions…</div>';
+  list.innerHTML = '<div class="empty-state loading">Loading listings…</div>';
   const url = new URL("/api/admin/submissions", location.origin);
   url.searchParams.set("status", currentStatus);
   if (searchInput.value.trim()) url.searchParams.set("q", searchInput.value.trim());
   try {
     const data = await adminApi(url.pathname + url.search);
     list.replaceChildren();
-    if (!data.submissions.length) list.innerHTML = '<div class="empty-state">No submissions in this section.</div>';
+    if (!data.submissions.length) list.innerHTML = '<div class="empty-state">No listings in this section.</div>';
     data.submissions.forEach((item) => list.append(renderSubmission(item)));
   } catch (error) {
     list.innerHTML = '<div class="empty-state"></div>';

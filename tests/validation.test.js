@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { normalizeWebsiteUrl, slugFromDomain, validateSubmission, validateReport } from "../functions/_lib/validation.js";
+import { detectProhibitedContent, normalizeWebsiteUrl, slugFromDomain, validateSubmission, validateReport } from "../functions/_lib/validation.js";
 
 test("accepts a clean HTTPS homepage", () => {
   assert.deepEqual(normalizeWebsiteUrl("https://www.example.com/"), {
@@ -49,6 +49,16 @@ test("validates a complete submission", () => {
   });
   assert.equal(result.name, "Example Tool");
   assert.equal(result.website.normalisedDomain, "example.com");
+});
+
+test("blocks high-confidence pornographic and adult-service signals", () => {
+  assert.match(detectProhibitedContent({ domain: "free-porn-videos.example" }), /not accepted/);
+  assert.match(detectProhibitedContent({ pageText: "Watch free porn videos online" }), /prohibited/);
+  assert.match(detectProhibitedContent({ submittedText: "Local escort services and adult cams" }), /prohibited/);
+});
+
+test("does not block ordinary health education wording", () => {
+  assert.equal(detectProhibitedContent({ submittedText: "Evidence-based sexual health education for adults and parents" }), "");
 });
 
 test("validates reports and rejects unknown reasons", () => {

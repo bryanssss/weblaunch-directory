@@ -1,4 +1,4 @@
-import { json, methodNotAllowed, publicCache } from "../../_lib/http.js";
+import { json, methodNotAllowed } from "../../_lib/http.js";
 
 export async function onRequest(context) {
   if (context.request.method !== "GET") return methodNotAllowed(["GET"]);
@@ -11,7 +11,7 @@ export async function onRequest(context) {
       FROM sites WHERE slug = ?1 AND status = 'approved' LIMIT 1
     `).bind(slug).first();
     if (!site) return json({ error: "Listing not found." }, 404);
-    return json({ site }, 200, publicCache(120));
+    return json({ site }, 200);
   } catch (error) {
     console.error("Read site error", error);
     return json({ error: "The listing could not be loaded." }, 500);

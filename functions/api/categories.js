@@ -1,5 +1,5 @@
 import { CATEGORIES } from "../_lib/constants.js";
-import { json, methodNotAllowed, publicCache } from "../_lib/http.js";
+import { json, methodNotAllowed } from "../_lib/http.js";
 
 export async function onRequest(context) {
   if (context.request.method !== "GET") return methodNotAllowed(["GET"]);
@@ -13,7 +13,7 @@ export async function onRequest(context) {
     const countMap = new Map((result.results || []).map((row) => [row.category, Number(row.count)]));
     return json({
       categories: CATEGORIES.map((name) => ({ name, count: countMap.get(name) || 0 }))
-    }, 200, publicCache(120));
+    }, 200);
   } catch (error) {
     console.error("Categories error", error);
     return json({ error: "Categories could not be loaded." }, 500);

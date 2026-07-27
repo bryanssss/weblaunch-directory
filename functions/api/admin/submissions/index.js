@@ -11,7 +11,7 @@ export async function onRequest(context) {
   if (!context.env.DB) return json({ error: "The database is not connected yet." }, 503);
 
   const url = new URL(context.request.url);
-  const status = ALLOWED_STATUSES.has(url.searchParams.get("status")) ? url.searchParams.get("status") : "pending";
+  const status = ALLOWED_STATUSES.has(url.searchParams.get("status")) ? url.searchParams.get("status") : "approved";
   const query = cleanText(url.searchParams.get("q")).slice(0, 100);
   const page = Math.max(1, Number.parseInt(url.searchParams.get("page") || "1", 10) || 1);
   const limit = Math.max(1, Math.min(50, Number.parseInt(url.searchParams.get("limit") || "20", 10) || 20));
@@ -38,7 +38,7 @@ export async function onRequest(context) {
              (SELECT COUNT(*) FROM reports r WHERE r.site_id = s.id) AS reports
       FROM sites s
       ${where}
-      ORDER BY CASE s.status WHEN 'pending' THEN 0 ELSE 1 END, s.created_at DESC
+      ORDER BY s.created_at DESC
       LIMIT ? OFFSET ?
     `).bind(...binds, limit, offset);
     const countBase = context.env.DB.prepare(`SELECT COUNT(*) AS total FROM sites s ${where}`);

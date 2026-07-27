@@ -37,6 +37,22 @@ test("Worker rewrites clean listing URLs to site.html", async () => {
   assert.equal(requestedPath, "/site.html");
 });
 
+
+test("Worker rewrites clean category URLs to categories.html", async () => {
+  let requestedPath = "";
+  const env = {
+    ASSETS: {
+      fetch: async (request) => {
+        requestedPath = new URL(request.url).pathname;
+        return new Response("category app");
+      }
+    }
+  };
+  const response = await worker.fetch(new Request("https://example.test/category/travel"), env, ctx());
+  assert.equal(response.status, 200);
+  assert.equal(requestedPath, "/categories.html");
+});
+
 test("Worker passes normal pages to static assets", async () => {
   let requestedPath = "";
   const env = {
