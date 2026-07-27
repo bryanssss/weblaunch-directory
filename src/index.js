@@ -84,14 +84,6 @@ async function routeDynamicRequest(request, env, ctx) {
     return env.ASSETS.fetch(new Request(assetUrl, request));
   }
 
-  // Clean contact URL should redirect once to the static contact page.
-  // This avoids rewrite loops on some Cloudflare asset configurations.
-  if (path === "/contact" || path === "/contact/") {
-    const target = new URL(request.url);
-    target.pathname = "/contact.html";
-    return Response.redirect(target.toString(), 302);
-  }
-
   // The public listing URL is /site/123-example-domain, but the browser app lives
   // in public/site.html and reads the slug from the current URL.
   if (/^\/site\/[^/]+\/?$/.test(path)) {
