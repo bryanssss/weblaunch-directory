@@ -20,10 +20,12 @@
     ]
   },
   "d1_databases": [
-    {
-      "binding": "DB"
-    }
-  ],
+  {
+    "binding": "DB",
+    "database_name": "weblaunch-directory-db",
+    "database_id": "6318c6a0-b7bb-4d08-980b-7a14067d6be7"
+  }
+],
   "send_email": [
     {
       "name": "CONTACT_EMAIL"
