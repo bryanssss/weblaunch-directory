@@ -1,4 +1,4 @@
-import { api, categorySlug, create, formatDate, qs, siteIcon } from "./common.js?v=1.4.0";
+import { api, categorySlug, create, formatDate, qs, siteIcon } from "./common.js?v=1.5.0";
 
 const content = qs("#listing-content");
 const reportLink = qs("#report-link");

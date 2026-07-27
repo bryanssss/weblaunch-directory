@@ -1,3 +1,11 @@
+## 1.5.0 — Private Cloudflare contact inbox
+
+- Removed the custom sender-domain and outbound Email Service requirement.
+- Contact messages are now stored privately in D1.
+- Added a protected Contact inbox to the administrator dashboard.
+- Added resolve, reopen, reply-by-email and permanent-delete controls.
+- Updated privacy and contact wording for D1 message storage.
+
 # Changelog
 
 ## v1.4.0 — Reliable listing pages, uploaded logo and stronger favicons

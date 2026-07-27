@@ -91,14 +91,6 @@ Open `/admin/` and enter `ADMIN_KEY`. The dashboard starts on **Live** listings.
 
 ## Part 12 — Configure the private Contact page
 
-Version 1.3 uses Cloudflare Email Service. Add and verify the private destination inbox under **Compute → Email Service → Email Routing → Destination Addresses**. Onboard a sender domain under **Email Sending**.
+Version 1.5 uses a private Cloudflare D1 contact inbox. No sender domain, Email Service binding or public contact address is required.
 
-The Worker configuration creates a send binding named `CONTACT_EMAIL`. Add these runtime settings:
-
-```text
-CONTACT_TO_EMAIL = private verified inbox (Secret)
-CONTACT_FROM_EMAIL = sender address on the onboarded domain (Plaintext)
-CONTACT_FROM_NAME = WebLaunch Directory (Plaintext)
-```
-
-The destination address is never included in the public repository or browser code. Open `/api/health` and confirm `contact.ready` is true, then test `/contact`.
+The contact form automatically creates its D1 tables the first time it is used. Open `/admin/`, enter `ADMIN_KEY`, and choose **Contact inbox** to read, resolve or delete messages. Use the visitor reply address shown in the private dashboard to reply from your normal email account.

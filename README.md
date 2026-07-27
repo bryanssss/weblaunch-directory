@@ -10,7 +10,7 @@ Cloudflare Worker
 ├── API router from src/index.js
 ├── Backend modules from functions/
 ├── D1 database binding named DB
-├── Cloudflare Email Service binding named CONTACT_EMAIL
+├── Private Cloudflare D1 contact inbox
 ├── Turnstile bot protection
 └── Static Assets binding named ASSETS
 ```
@@ -39,7 +39,7 @@ Cloudflare Worker
 - Actual website favicons loaded through a privacy-conscious Worker proxy with letter fallback
 - Private Contact page for listing reports and general messages
 - Contact destination address stored only as a Cloudflare secret
-- Cloudflare Email Service delivery to a verified private destination
+- Private contact messages stored in Cloudflare D1
 - Daily contact-form limits using hashed email and IP identifiers
 - PayPal donation reminder after every successful publication
 - Optional PayPal buttons without paid placement or ranking benefits
@@ -79,7 +79,7 @@ npm run check
 npm test
 ```
 
-Version 1.4 includes 31 automated tests covering automatic approval, exact listing lookup, private contact email, URL rules, privacy hashing, adult-content signals, XML escaping and Worker routing.
+Version 1.4 includes 31 automated tests covering automatic approval, exact listing lookup, private D1 contact inbox, URL rules, privacy hashing, adult-content signals, XML escaping and Worker routing.
 
 ## Deployment
 
@@ -105,12 +105,9 @@ IP_HASH_SALT
 Private contact-email values:
 
 ```text
-CONTACT_TO_EMAIL       Secret: verified private destination inbox
-CONTACT_FROM_EMAIL     Plaintext: sender address on an onboarded Cloudflare Email Service domain
-CONTACT_FROM_NAME      Plaintext: optional sender name
 ```
 
-Never commit secret values to GitHub. The private destination email address is not present in the public repository or browser code.
+Never commit secret values to GitHub. Contact messages and visitor reply addresses are available only inside the protected management dashboard.
 
 ## Support the project
 

@@ -10,6 +10,8 @@ import { onRequest as contact } from "../functions/api/contact.js";
 import { onRequest as report } from "../functions/api/report.js";
 import { onRequest as adminStats } from "../functions/api/admin/stats.js";
 import { onRequest as adminReports } from "../functions/api/admin/reports.js";
+import { onRequest as adminContacts } from "../functions/api/admin/contacts/index.js";
+import { onRequest as adminContactById } from "../functions/api/admin/contacts/[id].js";
 import { onRequest as adminSubmissions } from "../functions/api/admin/submissions/index.js";
 import { onRequest as adminSubmissionById } from "../functions/api/admin/submissions/[id].js";
 import { onRequest as sitemap } from "../functions/sitemap.xml.js";
@@ -52,11 +54,17 @@ async function routeDynamicRequest(request, env, ctx) {
   if (path === "/api/report") return report(context());
   if (path === "/api/admin/stats") return adminStats(context());
   if (path === "/api/admin/reports") return adminReports(context());
+  if (path === "/api/admin/contacts") return adminContacts(context());
   if (path === "/api/admin/submissions") return adminSubmissions(context());
 
   const siteMatch = path.match(/^\/api\/sites\/([^/]+)$/);
   if (siteMatch) {
     return siteBySlug(context({ slug: decodeURIComponent(siteMatch[1]) }));
+  }
+
+  const adminContactMatch = path.match(/^\/api\/admin\/contacts\/(\d+)$/);
+  if (adminContactMatch) {
+    return adminContactById(context({ id: adminContactMatch[1] }));
   }
 
   const adminSubmissionMatch = path.match(/^\/api\/admin\/submissions\/(\d+)$/);

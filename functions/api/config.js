@@ -9,6 +9,7 @@ export async function onRequest(context) {
     categories: CATEGORIES,
     reportReasons: REPORT_REASONS,
     submissionsPerDay: SUBMISSIONS_PER_DAY,
-    contactEnabled: Boolean(context.env.CONTACT_EMAIL && context.env.CONTACT_TO_EMAIL && context.env.CONTACT_FROM_EMAIL)
+    contactEnabled: Boolean(context.env.DB),
+    contactMode: "private-inbox"
   }, 200, publicCache(300));
 }

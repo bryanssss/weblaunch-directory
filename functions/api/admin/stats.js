@@ -1,4 +1,5 @@
 import { requireAdmin } from "../../_lib/admin.js";
+import { ensureContactInboxTables } from "../../_lib/contact-inbox.js";
 import { json, methodNotAllowed } from "../../_lib/http.js";
 
 export async function onRequest(context) {
@@ -8,10 +9,12 @@ export async function onRequest(context) {
   if (!context.env.DB) return json({ error: "The database is not connected yet." }, 503);
 
   try {
-    const [statuses, reports, featured] = await context.env.DB.batch([
+    await ensureContactInboxTables(context.env.DB);
+    const [statuses, reports, featured, openContacts] = await context.env.DB.batch([
       context.env.DB.prepare("SELECT status, COUNT(*) AS count FROM sites GROUP BY status"),
       context.env.DB.prepare("SELECT COUNT(*) AS count FROM reports"),
-      context.env.DB.prepare("SELECT COUNT(*) AS count FROM sites WHERE status = 'approved' AND featured = 1")
+      context.env.DB.prepare("SELECT COUNT(*) AS count FROM sites WHERE status = 'approved' AND featured = 1"),
+      context.env.DB.prepare("SELECT COUNT(*) AS count FROM contact_messages WHERE status = 'open'")
     ]);
     const statusMap = Object.fromEntries((statuses.results || []).map((row) => [row.status, Number(row.count)]));
     return json({
@@ -20,7 +23,8 @@ export async function onRequest(context) {
       rejected: statusMap.rejected || 0,
       suspended: statusMap.suspended || 0,
       featured: Number(featured.results?.[0]?.count || 0),
-      reports: Number(reports.results?.[0]?.count || 0)
+      reports: Number(reports.results?.[0]?.count || 0),
+      openContacts: Number(openContacts.results?.[0]?.count || 0)
     });
   } catch (error) {
     console.error("Admin stats error", error);

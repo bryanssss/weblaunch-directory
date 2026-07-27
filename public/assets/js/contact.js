@@ -1,4 +1,4 @@
-import { api, clearNotice, getConfig, qs, setNotice } from "./common.js?v=1.4.0";
+import { api, clearNotice, getConfig, qs, setNotice } from "./common.js?v=1.5.0";
 
 const form = qs("#contact-form");
 const notice = qs("#contact-notice");
@@ -40,7 +40,7 @@ async function initialise() {
       return;
     }
     if (!config.contactEnabled) {
-      setNotice(notice, "The private email connection is not finished yet. The site owner needs to complete the one-time Email Service setup.", "warning");
+      setNotice(notice, "The private contact inbox is temporarily unavailable because the database is not connected.", "warning");
       submitButton.disabled = true;
       return;
     }
@@ -69,7 +69,7 @@ form.addEventListener("submit", async (event) => {
   }
 
   submitButton.disabled = true;
-  submitButton.textContent = "Sending message…";
+  submitButton.textContent = "Saving message…";
   const data = new FormData(form);
   try {
     const result = await api("/api/contact", {
@@ -97,7 +97,7 @@ form.addEventListener("submit", async (event) => {
     resetTurnstile();
   } finally {
     submitButton.disabled = false;
-    submitButton.textContent = "Send message";
+    submitButton.textContent = "Save message privately";
   }
 });
 

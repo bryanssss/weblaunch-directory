@@ -1,4 +1,4 @@
-import { api, qs, siteCard } from "./common.js?v=1.4.0";
+import { api, qs, siteCard } from "./common.js?v=1.5.0";
 
 const grid = qs("#latest-sites");
 const featuredGrid = qs("#featured-sites");
