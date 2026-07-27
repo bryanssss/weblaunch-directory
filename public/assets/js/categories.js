@@ -1,4 +1,4 @@
-import { api, categorySlug, create, enhanceSelect, qs, siteCard } from "./common.js";
+import { api, categorySlug, create, enhanceSelect, qs, siteCard } from "./common.js?v=1.4.0";
 
 const categoryGrid = qs("#category-grid");
 const categoryOverview = qs("#category-overview");

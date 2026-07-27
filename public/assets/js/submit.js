@@ -1,4 +1,4 @@
-import { api, clearNotice, enhanceSelect, getConfig, qs, setNotice } from "./common.js";
+import { api, clearNotice, enhanceSelect, getConfig, qs, setNotice } from "./common.js?v=1.4.0";
 
 const form = qs("#submission-form");
 const notice = qs("#form-notice");
@@ -96,7 +96,7 @@ form.addEventListener("submit", async (event) => {
     form.reset();
     counter.textContent = "0/350";
     setNotice(notice, result.message, "success");
-    const listingPath = result.path || (result.slug ? `/site/${encodeURIComponent(result.slug)}` : "/");
+    const listingPath = result.path || (result.domain ? `/site.html?domain=${encodeURIComponent(result.domain)}` : "/");
     if (listingPath) {
       const liveLink = document.createElement("a");
       liveLink.className = "notice-link";

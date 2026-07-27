@@ -1,4 +1,4 @@
-import { api, create, formatDate, qs, qsa, setNotice } from "./common.js";
+import { api, create, formatDate, qs, qsa, setNotice } from "./common.js?v=1.4.0";
 
 const loginPanel = qs("#admin-login");
 const dashboard = qs("#admin-dashboard");

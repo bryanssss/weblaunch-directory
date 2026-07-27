@@ -16,7 +16,7 @@ export async function onRequest(context) {
   let sites = [];
   if (context.env.DB) {
     try {
-      const result = await context.env.DB.prepare("SELECT id, slug, updated_at FROM sites WHERE status = 'approved' ORDER BY approved_at DESC LIMIT 5000").all();
+      const result = await context.env.DB.prepare("SELECT id, slug, normalized_domain, updated_at FROM sites WHERE status = 'approved' ORDER BY approved_at DESC LIMIT 5000").all();
       sites = result.results || [];
     } catch (error) {
       console.error("Sitemap database error", error);
@@ -25,7 +25,7 @@ export async function onRequest(context) {
   const items = [
     ...staticPages.map((path) => `<url><loc>${xmlEscape(origin + path)}</loc></url>`),
     ...CATEGORIES.map((category) => `<url><loc>${xmlEscape(`${origin}/category/${categorySlug(category)}`)}</loc></url>`),
-    ...sites.map((site) => `<url><loc>${xmlEscape(`${origin}/site/${site.id}-${site.slug}`)}</loc><lastmod>${xmlEscape(String(site.updated_at || "").slice(0, 10))}</lastmod></url>`)
+    ...sites.map((site) => `<url><loc>${xmlEscape(`${origin}/site.html?domain=${encodeURIComponent(site.normalized_domain)}`)}</loc><lastmod>${xmlEscape(String(site.updated_at || "").slice(0, 10))}</lastmod></url>`)
   ].join("");
   return new Response(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${items}</urlset>`, {
     headers: { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=600" }

@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.4.0 — Reliable listing pages, uploaded logo and stronger favicons
+
+- Replaced fragile listing links with exact domain-based `site.html?domain=` links.
+- Listing details now use the same `/api/sites` endpoint already proven by the Discover page.
+- Added exact `id` and `domain` filters to the public listings API.
+- Kept legacy `/site/...` links compatible.
+- Added SVG, AVIF, CDN-hosted and Google fallback favicon support.
+- Installed the user-provided green browser-growth logo across the site.
+- Added cache-busting asset versions.
+- Added professional spacing between stacked submission notices.
+- Added exact tests for domain and ID listing lookups.
+
 ## v1.3.0 — Contact email, favicons and reliable listing pages
 
 - Added an exact `/api/site?id=` lookup so clean listing pages load by permanent database ID.

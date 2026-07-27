@@ -484,3 +484,30 @@ html, body { max-width: 100%; overflow-x: clip; }
   .site-card-top { align-items: flex-start; }
   .site-card h3 { font-size: 1.12rem; }
 }
+
+/* Version 1.4: uploaded logo, reliable listing URLs, favicon upgrades and notice spacing */
+.brand-logo {
+  object-fit: contain;
+  border-radius: 10px;
+}
+.form-shell > .notice + .notice {
+  margin-top: 18px;
+}
+.site-favicon {
+  inset: 5px;
+  width: calc(100% - 10px);
+  height: calc(100% - 10px);
+  padding: 2px;
+  background: rgba(255,255,255,.94);
+  border-radius: 10px;
+}
+.site-icon.large .site-favicon {
+  inset: 7px;
+  width: calc(100% - 14px);
+  height: calc(100% - 14px);
+  padding: 3px;
+  border-radius: 13px;
+}
+@media (max-width: 480px) {
+  .form-shell > .notice + .notice { margin-top: 14px; }
+}

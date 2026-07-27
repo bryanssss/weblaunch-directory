@@ -2,6 +2,10 @@ import { CATEGORIES } from "../../_lib/constants.js";
 import { json, methodNotAllowed } from "../../_lib/http.js";
 import { cleanText } from "../../_lib/security.js";
 
+function normaliseDomain(value) {
+  return cleanText(value).toLowerCase().replace(/^www\./, "").replace(/\.$/, "");
+}
+
 export async function onRequest(context) {
   if (context.request.method !== "GET") return methodNotAllowed(["GET"]);
   if (!context.env.DB) return json({ error: "The database is not connected yet." }, 503);
@@ -9,6 +13,8 @@ export async function onRequest(context) {
   const url = new URL(context.request.url);
   const query = cleanText(url.searchParams.get("q")).slice(0, 100);
   const category = cleanText(url.searchParams.get("category"));
+  const exactDomain = normaliseDomain(url.searchParams.get("domain"));
+  const exactId = Number.parseInt(url.searchParams.get("id") || "", 10);
   const featured = url.searchParams.get("featured") === "1";
   const page = Math.max(1, Math.min(1000, Number.parseInt(url.searchParams.get("page") || "1", 10) || 1));
   const limit = Math.max(1, Math.min(24, Number.parseInt(url.searchParams.get("limit") || "12", 10) || 12));
@@ -16,13 +22,23 @@ export async function onRequest(context) {
 
   const conditions = ["status = 'approved'"];
   const bindings = [];
+
+  if (Number.isInteger(exactId) && exactId > 0) {
+    conditions.push("id = ?");
+    bindings.push(exactId);
+  }
+  if (exactDomain && /^[a-z0-9.-]{1,253}$/.test(exactDomain)) {
+    conditions.push("LOWER(normalized_domain) = ?");
+    bindings.push(exactDomain);
+  }
   if (category && CATEGORIES.includes(category)) {
     conditions.push("category = ?");
     bindings.push(category);
   }
   if (query) {
-    conditions.push("(name LIKE ? OR description LIKE ? OR normalized_domain LIKE ?)");
-    const like = `%${query.replaceAll("%", "\\%").replaceAll("_", "\\_")}%`;
+    conditions.push("(name LIKE ? ESCAPE '\\' OR description LIKE ? ESCAPE '\\' OR normalized_domain LIKE ? ESCAPE '\\')");
+    const escaped = query.replaceAll("\\", "\\\\").replaceAll("%", "\\%").replaceAll("_", "\\_");
+    const like = `%${escaped}%`;
     bindings.push(like, like, like);
   }
   if (featured) conditions.push("featured = 1");

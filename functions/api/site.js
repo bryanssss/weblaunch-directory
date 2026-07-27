@@ -6,7 +6,7 @@ const SELECT_SITE = `
 `;
 
 function canonicalPath(site) {
-  return `/site/${site.id}-${site.slug}`;
+  return `/site.html?domain=${encodeURIComponent(site.normalized_domain)}`;
 }
 
 function cleanKey(value) {

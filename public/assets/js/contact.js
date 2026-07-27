@@ -1,4 +1,4 @@
-import { api, clearNotice, getConfig, qs, setNotice } from "./common.js";
+import { api, clearNotice, getConfig, qs, setNotice } from "./common.js?v=1.4.0";
 
 const form = qs("#contact-form");
 const notice = qs("#contact-notice");

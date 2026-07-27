@@ -1,11 +1,18 @@
-import { api, categorySlug, create, formatDate, qs, siteIcon } from "./common.js";
+import { api, categorySlug, create, formatDate, qs, siteIcon } from "./common.js?v=1.4.0";
 
 const content = qs("#listing-content");
 const reportLink = qs("#report-link");
 let site = null;
 
+function normaliseDomain(value) {
+  return String(value || "").trim().toLowerCase().replace(/^www\./, "").replace(/\.$/, "");
+}
+
 function getLookup() {
   const params = new URLSearchParams(location.search);
+  const domain = normaliseDomain(params.get("domain"));
+  if (domain) return { domain };
+
   const queryId = Number.parseInt(params.get("id") || "", 10);
   if (Number.isInteger(queryId) && queryId > 0) return { id: queryId };
 
@@ -13,6 +20,7 @@ function getLookup() {
   const key = pathMatch ? decodeURIComponent(pathMatch[1]) : params.get("slug") || "";
   const idMatch = key.match(/^(\d+)(?:-|$)/);
   if (idMatch) return { id: Number(idMatch[1]), key };
+  if (/^[a-z0-9.-]+$/i.test(key) && key.includes(".")) return { domain: normaliseDomain(key), key };
   return key ? { key } : {};
 }
 
@@ -79,23 +87,49 @@ function renderSite(item) {
   setReportLink(item);
 }
 
+async function loadFromKnownWorkingListApi(lookup) {
+  const endpoint = new URL("/api/sites", location.origin);
+  endpoint.searchParams.set("limit", "1");
+  if (lookup.domain) endpoint.searchParams.set("domain", lookup.domain);
+  else if (lookup.id) endpoint.searchParams.set("id", String(lookup.id));
+  else return null;
+  const data = await api(endpoint.pathname + endpoint.search);
+  return data.sites?.[0] || null;
+}
+
+async function loadLegacyKey(key) {
+  try {
+    const exact = await api(`/api/site?key=${encodeURIComponent(key)}`);
+    return exact.site || null;
+  } catch {
+    const search = await api(`/api/sites?q=${encodeURIComponent(key)}&limit=24`);
+    const lowered = String(key).toLowerCase();
+    return search.sites?.find((item) =>
+      String(item.slug || "").toLowerCase() === lowered ||
+      String(item.normalized_domain || "").toLowerCase() === lowered ||
+      String(item.normalized_domain || "").toLowerCase().replaceAll(".", "-") === lowered
+    ) || null;
+  }
+}
+
 async function loadSite() {
   const lookup = getLookup();
   setReportLink();
-  if (!lookup.id && !lookup.key) {
+  if (!lookup.id && !lookup.domain && !lookup.key) {
     content.innerHTML = '<div class="empty-state">Listing not found.</div>';
     return;
   }
 
-  const endpoint = new URL("/api/site", location.origin);
-  if (lookup.id) endpoint.searchParams.set("id", String(lookup.id));
-  else endpoint.searchParams.set("key", lookup.key);
-
   try {
-    const data = await api(endpoint.pathname + endpoint.search);
-    site = data.site;
-    if (data.canonicalPath && location.pathname !== data.canonicalPath) {
-      history.replaceState({}, "", data.canonicalPath);
+    let item = null;
+    if (lookup.id || lookup.domain) item = await loadFromKnownWorkingListApi(lookup);
+    if (!item && lookup.key) item = await loadLegacyKey(lookup.key);
+    if (!item) throw new Error("Listing not found.");
+
+    site = item;
+    const canonical = `/site.html?domain=${encodeURIComponent(item.normalized_domain)}`;
+    if (location.pathname !== "/site.html" || normaliseDomain(new URLSearchParams(location.search).get("domain")) !== normaliseDomain(item.normalized_domain)) {
+      history.replaceState({}, "", canonical);
     }
     renderSite(site);
   } catch (error) {

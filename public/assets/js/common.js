@@ -66,10 +66,11 @@ export function siteIcon(site, extraClass = "") {
 }
 
 export function listingPath(site) {
-  const slug = String(site?.slug || "").trim();
+  const domain = String(site?.normalized_domain || "").trim().toLowerCase().replace(/^www\./, "");
+  if (domain) return `/site.html?domain=${encodeURIComponent(domain)}`;
   const id = Number(site?.id || 0);
-  if (Number.isInteger(id) && id > 0 && slug) return `/site/${id}-${encodeURIComponent(slug)}`;
-  return `/site/${encodeURIComponent(slug)}`;
+  if (Number.isInteger(id) && id > 0) return `/site.html?id=${id}`;
+  return "/categories.html";
 }
 
 export function siteCard(site) {

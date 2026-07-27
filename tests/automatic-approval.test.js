@@ -63,7 +63,7 @@ test("a valid submission is inserted as approved and receives a live slug", { co
   assert.equal(response.status, 201);
   const data = await response.json();
   assert.equal(data.slug, "example-com");
-  assert.equal(data.path, "/site/42-example-com");
+  assert.equal(data.path, "/site.html?domain=example.com");
   assert.match(data.message, /now live/i);
   const insert = batches[1].find((statement) => /INSERT INTO sites/.test(statement.sql));
   assert.match(insert.sql, /'approved'/);

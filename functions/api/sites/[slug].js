@@ -10,7 +10,7 @@ function cleanListingKey(value) {
 }
 
 function canonicalPath(site) {
-  return `/site/${site.id}-${site.slug}`;
+  return `/site.html?domain=${encodeURIComponent(site.normalized_domain)}`;
 }
 
 export async function onRequest(context) {

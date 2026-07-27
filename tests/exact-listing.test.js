@@ -39,7 +39,7 @@ test("exact listing API resolves a published row by ID", async () => {
   assert.equal(response.status, 200);
   const data = await response.json();
   assert.equal(data.site.id, 7);
-  assert.equal(data.canonicalPath, "/site/7-somniascope-com");
+  assert.equal(data.canonicalPath, "/site.html?domain=somniascope.com");
 });
 
 test("exact listing API supports old slug keys", async () => {

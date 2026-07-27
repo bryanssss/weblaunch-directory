@@ -142,7 +142,8 @@ export async function onRequest(context) {
       message: "Your website passed the automated checks and is now live in the directory.",
       id: insertedId || undefined,
       slug,
-      path: insertedId ? `/site/${insertedId}-${slug}` : `/site/${slug}`
+      domain: checkedWebsite.normalisedDomain,
+      path: `/site.html?domain=${encodeURIComponent(checkedWebsite.normalisedDomain)}`
     }, 201);
   } catch (error) {
     const friendly = friendlyDatabaseError(error);

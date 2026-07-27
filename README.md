@@ -15,6 +15,16 @@ Cloudflare Worker
 └── Static Assets binding named ASSETS
 ```
 
+## Version 1.4 highlights
+
+- Reliable domain-based listing URLs using `site.html?domain=`
+- Listing pages reuse the proven `/api/sites` database endpoint
+- Automatic favicon discovery with SVG, CDN and public-service fallback support
+- User-provided green browser-growth logo throughout the site
+- Improved spacing between submission notices
+- Versioned asset URLs to prevent stale browser caches
+- 31 automated tests
+
 ## Version 1.3 highlights
 
 - Automatic publication for submissions that pass the rules
@@ -51,14 +61,14 @@ functions/api/favicon.js             Safe favicon discovery and proxy
 functions/api/contact.js             Private contact-email endpoint
 functions/_lib/validation.js         Submission, contact and prohibited-content checks
 public/contact.html                  Private contact and listing-report page
-public/assets/weblaunch-logo.svg     Website logo
+public/assets/weblaunch-logo.png     User-provided website logo
 public/                              HTML, CSS and browser JavaScript
 database/schema.sql                  D1 database tables
 database/migrations/                 Optional one-time database updates
 tools/generate-secrets.html          Offline secret generator
 tests/                               Automated tests
 SETUP-GUIDE.md                       Beginner installation instructions
-UPDATE-GUIDE-v1.3.md                 Existing-installation update guide
+UPDATE-GUIDE-v1.4.md                 Existing-installation update guide
 ```
 
 ## Testing
@@ -69,7 +79,7 @@ npm run check
 npm test
 ```
 
-Version 1.3 includes 29 automated tests covering automatic approval, exact listing lookup, private contact email, URL rules, privacy hashing, adult-content signals, XML escaping and Worker routing.
+Version 1.4 includes 31 automated tests covering automatic approval, exact listing lookup, private contact email, URL rules, privacy hashing, adult-content signals, XML escaping and Worker routing.
 
 ## Deployment
 
